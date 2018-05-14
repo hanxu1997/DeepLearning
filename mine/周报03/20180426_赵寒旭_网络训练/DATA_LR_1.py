@@ -32,8 +32,15 @@ transform = transforms.Compose([
 ])
 
 ####数据预处理
+# train
 transform = transforms.Compose([
                                 transforms.RandomCrop(32, padding=4), # 随机剪裁
+                                transforms.RandomHorizontalFlip(), # 随机水平翻转
+                                transforms.ToTensor(),#转为tensor
+                                transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)),#归一化
+                            ])
+# test
+transform_test = transforms.Compose([
                                 transforms.RandomHorizontalFlip(), # 随机水平翻转
                                 transforms.ToTensor(),#转为tensor
                                 transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)),#归一化
@@ -53,7 +60,7 @@ trainloader=data.DataLoader(trainset,
 testset=datasets.CIFAR10(root='./data',
                             train=False,
                             download=True,
-                            transform=transform)
+                            transform=transform_test)
 
 testloader=data.DataLoader(testset,
                             batch_size=100,
@@ -241,8 +248,8 @@ best_acc = 0  # best test accuracy
 print("==> creating model alexnet")
 model = AlexNet();
 num_classes = 10;
-use_cuda = False
-# use_cuda = True
+# use_cuda = False
+use_cuda = True
 if use_cuda:
     os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     model = model.cuda()

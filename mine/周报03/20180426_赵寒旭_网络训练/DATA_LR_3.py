@@ -38,6 +38,10 @@ transform = transforms.Compose([
                                 transforms.ToTensor(),#转为tensor
                                 transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)),#归一化
                             ])
+# test预处理crop中间centralcrop或者不crop
+
+
+
 ####加载数据
 #训练集
 trainset=datasets.CIFAR10(root='./data',
