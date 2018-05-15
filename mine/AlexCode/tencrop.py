@@ -21,13 +21,96 @@ from utils import Logger, AverageMeter, accuracy, mkdir_p, savefig
 
 
 from numpy import*
+# 上下翻转
+def TurnUpDown(a):
+    return a[::-1]
+# 左右翻转
+def TurnLeftRight(a):
+    return numpy.array(list(map(TurnUpDown, a)))
+# 翻转180度
+def Turn180(a):
+    return numpy.array(TurnUpDown(list(map(TurnUpDown, a))))
+# 三维矩阵下后两维左右翻转
+def Turn3D(crop):
+    crop = crop.transpose(0,2,1)
+    crop = TurnLeftRight(crop)
+    crop = crop.transpose(0,2,1)
+    return crop
+# 4D 左右翻转
+def Turn4D(crop):
+    return crop
+
+ # batchSize 未实现!
+ # inputs: 128*256*3*3
+ # batchSize: 128
+ # channel: 256
+ # inputSize: 5
+ # cropSize: 3
+ # crops: 10*128*256*3*3
+def tencrop(inputs, batchSize, channel, inputSize, cropSize):
+    crops = arange(10*batchSize*channel*cropSize*cropSize)
+    crops = crops.reshape(10, batchSize, channel, cropSize, cropSize)
+    edgestart = inputSize-cropSize;
+    midstart = int(floor(inputSize/2)-floor(cropSize/2))
+    midend = midstart+cropSize;
+
+    crops[0] = inputs[:,:,0:cropSize,0:cropSize]
+    crops[1] = inputs[:,:,0:cropSize,edgestart:inputSize]
+    crops[2] = inputs[:,:,edgestart:inputSize,0:cropSize]
+    crops[3] = inputs[:,:,edgestart:inputSize,edgestart:inputSize]
+    crops[4] = inputs[:,:,midstart:midend,midstart:midend]
+    crops[5] = Turn4D(crops[0])
+    crops[6] = Turn4D(crops[1])
+    crops[7] = Turn4D(crops[2])
+    crops[8] = Turn4D(crops[3])
+    crops[9] = Turn4D(crops[4])
+    # return crops
+    return crops
+
+ # no batchSize 测试通过
+ # inputs: 256*3*3
+ # channel: 256
+ # inputSize: 5
+ # cropSize: 3
+ # crops: 10*256*3*3
+def tencrop1(inputs, channel, inputSize, cropSize):
+    crops = arange(10*channel*cropSize*cropSize)
+    crops = crops.reshape(10, channel, cropSize, cropSize)
+    edgestart = inputSize-cropSize;
+    midstart = int(floor(inputSize/2)-floor(cropSize/2))
+    midend = midstart+cropSize;
+
+    crops[0] = inputs[:,0:cropSize,0:cropSize]
+    crops[1] = inputs[:,0:cropSize,edgestart:inputSize]
+    crops[2] = inputs[:,edgestart:inputSize,0:cropSize]
+    crops[3] = inputs[:,edgestart:inputSize,edgestart:inputSize]
+    crops[4] = inputs[:,midstart:midend,midstart:midend]
+    crops[5] = Turn3D(crops[0])
+    crops[6] = Turn3D(crops[1])
+    crops[7] = Turn3D(crops[2])
+    crops[8] = Turn3D(crops[3])
+    crops[9] = Turn3D(crops[4])
+    return crops
+
+
 a = arange(25)
 a = a.reshape(5,5)
-print(a)
+# five crop
 a1 = a[0:3,0:3]
-print(a1)
 a2 = a[0:3,2:5]
-print(a2)
+a3 = a[2:5,0:3]
+a4 = a[2:5,2:5]
+a5 = a[1:4,1:4]
+b = zeros((256,5,5))
+for i in range(256):
+    b[i] = a
+
+crops = tencrop1(b, 256, 5, 3)
+for i in range(10):
+    print(crops[i])
+    print(shape(crops[i]))
+
+
 
 
 
